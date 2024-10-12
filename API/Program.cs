@@ -12,6 +12,9 @@ namespace Mmicovic.RPSSL.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Add custom CORS policies
+            CorsSetup.AddCorsPolicies(builder.Services);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -24,6 +27,8 @@ namespace Mmicovic.RPSSL.API
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+
+            app.UseCors();
 
             app.Run();
         }

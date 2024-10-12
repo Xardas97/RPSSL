@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
@@ -6,6 +7,7 @@ using Mmicovic.RPSSL.API.Models;
 namespace Mmicovic.RPSSL.API.Controllers
 {
     [Route("api")]
+    [EnableCors(CorsSetup.CORS_POLICY_TEST_UI)]
     [ApiController]
     /* This controller holds a collection of related endpoints all used for
      * accesing the valid hand shapes and playing the game.
