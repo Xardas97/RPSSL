@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Diagnostics;
 
+using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Exceptions;
 
 namespace Mmicovic.RPSSL.API.Controllers
@@ -10,7 +11,8 @@ namespace Mmicovic.RPSSL.API.Controllers
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = true)]
     /* All exceptions thrown by the API requests are routed to this controller.
-     * If the exception is of custom type HttpResponseException, specific response code and message will be sent.
+     * If the exception is of custom type HttpException, specific response code and message will be sent.
+     * Certain exceptions coming from the Service are known and are translated to an appropriate HttpException.
      * There are two separate handlers for production and developer environment.
      * Only when running in Dev environment will this controller give the full stack trace to the user. */
     public class ErrorHandlingController : ControllerBase
@@ -18,9 +20,10 @@ namespace Mmicovic.RPSSL.API.Controllers
         [Route("/error")]
         public IActionResult HandleError()
         {
-            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>()!;
+            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+            var exception = TranslateException(exceptionHandlerFeature!.Error);
 
-            if (exceptionHandlerFeature.Error is HttpException ex)
+            if (exception is HttpException ex)
             {
                 return Problem(statusCode: (int)ex.StatusCode, title: ex.Message);
             }
@@ -36,17 +39,25 @@ namespace Mmicovic.RPSSL.API.Controllers
                 return NotFound();
             }
 
-            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>()!;
+            var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+            var exception = TranslateException(exceptionHandlerFeature!.Error);
 
-            var statusCode = HttpStatusCode.InternalServerError;
-            if (exceptionHandlerFeature.Error is HttpException ex)
-            {
-                statusCode = ex.StatusCode;
-            }
+            var statusCode = exception is HttpException ex
+                ? ex.StatusCode
+                : HttpStatusCode.InternalServerError;
 
             return Problem(statusCode: (int)statusCode,
-                           title: exceptionHandlerFeature.Error.Message,
-                           detail: exceptionHandlerFeature.Error.StackTrace);
+                           title: exception.Message,
+                           detail: exception.StackTrace);
+        }
+
+        private static Exception TranslateException(Exception exception)
+        {
+            // Only translate exceptions that already lost their stack trace
+            if (exception is NumberGenerationUnavailableException)
+                return new HttpNumberGenerationUnavailableException();
+
+            return exception;
         }
     }
 }

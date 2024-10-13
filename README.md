@@ -8,6 +8,12 @@ To setup the [test UI](https://codechallenge.boohma.com/) you need to input the 
 
 After that the basic functionallities of the API can be tested in this lightweight environment.
 
+## Random number generation
+
+For random number generation an external service is being used.
+
+The URL of that service is configurable. It is located in the appsettings.json configurations, under the 'ConnectionStrings' section, with field name 'ExternalRandomGeneratorUrl'.
+
 ## Game victory algorithm
 
 Each valid shape a player can use is mapped to an ID number. The IDs are numbers 1 through 5, in the same order as the order the shapes take in the name of the game (eg. *Paper* is 2, *Spock* is 4).

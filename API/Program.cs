@@ -7,6 +7,13 @@ namespace Mmicovic.RPSSL.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add the configuration files
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false);
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Configuration.AddJsonFile($"appsettings.{Environments.Development}.json", optional: false);
+            }
+
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

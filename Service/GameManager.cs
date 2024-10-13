@@ -7,21 +7,22 @@ namespace Mmicovic.RPSSL.Service
 
     public interface IGameManager
     {
-        Shape GetRandomShape();
+        Task<Shape> GetRandomShape();
         IEnumerable<Shape> GetAllShapes();
 
-        GameRecord PlayAgainstComputer(int playerShape);
+        Task<GameRecord> PlayAgainstComputer(int playerShape);
     }
 
     /* This class implements methods used for accesing the valid hand shapes and playing the game.
      * It can generate random shapes both by request and for the CPU player of a game.
-     * For number generation the insecure basic .NET pseudonumber generator is temporarily used.
+     * For number generation an external pseudorandom generator i used.
      * The algorithm for deciding the winner of a game is described in more detailed in the project documentation. */
-    public class GameManager (ILogger<GameManager> logger) : IGameManager
+    public class GameManager(IRandomGenerator randomGenerator, ILogger<GameManager> logger) : IGameManager
     {
         public const int SHAPE_MIN = 1;
         public const int SHAPE_MAX = 5;
 
+        private readonly IRandomGenerator randomGenerator = randomGenerator;
         private readonly ILogger<GameManager> logger = logger;
 
         private readonly List<Shape> allShapes = [new(1, "rock"), new(2, "paper"), new(3, "scissors"),
@@ -33,14 +34,13 @@ namespace Mmicovic.RPSSL.Service
             return allShapes;
         }
 
-        public Shape GetRandomShape()
+        public async Task<Shape> GetRandomShape()
         {
-            var randomNumberGenerator = new Random();
-            var randomShape = randomNumberGenerator.Next(0, allShapes.Count);
+            var randomShape = await randomGenerator.Next(0, allShapes.Count);
             return allShapes[randomShape];
         }
 
-        public GameRecord PlayAgainstComputer(int playerShape)
+        public async Task<GameRecord> PlayAgainstComputer(int playerShape)
         {
             logger.LogInformation($"CPU game enganged with shape: {playerShape}");
 
@@ -48,7 +48,7 @@ namespace Mmicovic.RPSSL.Service
             VerifyShapeIdRange(playerShape);
 
             // Choose a random shape for the Computer
-            var computerShape = GetRandomShape().Id;
+            var computerShape = (await GetRandomShape()).Id;
             logger.LogInformation($"CPU chose shape: {computerShape}");
 
             var result = CalculateGameResult(playerShape, computerShape);
