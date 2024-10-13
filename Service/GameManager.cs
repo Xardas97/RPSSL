@@ -19,8 +19,8 @@ namespace Mmicovic.RPSSL.Service
      * The algorithm for deciding the winner of a game is described in more detailed in the project documentation. */
     public class GameManager (ILogger<GameManager> logger) : IGameManager
     {
-        private const int SHAPE_MIN = 1;
-        private const int SHAPE_MAX = 5;
+        public const int SHAPE_MIN = 1;
+        public const int SHAPE_MAX = 5;
 
         private readonly ILogger<GameManager> logger = logger;
 
@@ -80,7 +80,7 @@ namespace Mmicovic.RPSSL.Service
             if (shapeId < SHAPE_MIN || shapeId > SHAPE_MAX)
             {
                 logger.LogWarning($"Unsupported shape ID inputted: {shapeId}");
-                throw new ArgumentOutOfRangeException("Shape ID is out of the offered range");
+                throw new ArgumentOutOfRangeException("Chosen shape does not exist");
             }
         }
     }

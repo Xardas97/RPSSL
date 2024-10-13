@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors;
 
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
+using Mmicovic.RPSSL.API.Validators;
 
 namespace Mmicovic.RPSSL.API.Controllers
 {
@@ -44,8 +45,9 @@ namespace Mmicovic.RPSSL.API.Controllers
         public GameRecord PostNewComputerGame([FromBody] PlayCommand command)
         {
             logger.LogDebug($"Received request for a new CPU game with player shape: {command.ShapeId}");
+            new PostNewComputerGameValidator().Validate(command);
 
-            var record = gameManager.PlayAgainstComputer(command.ShapeId);
+            var record = gameManager.PlayAgainstComputer(command.ShapeId!.Value);
             logger.LogDebug($"A CPU game has been played with shape {record.Player1Choice} against {record.Player2Choice}, " +
                             $"Result: {record.Result}");
 
