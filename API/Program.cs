@@ -14,6 +14,8 @@ namespace Mmicovic.RPSSL.API
 
             // Add custom CORS policies
             CorsSetup.AddCorsPolicies(builder.Services);
+            // Setup all default dependencies
+            DependencyInjection.SetupDefaultDependencies(builder.Services);
 
             var app = builder.Build();
 

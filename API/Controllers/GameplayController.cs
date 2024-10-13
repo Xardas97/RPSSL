@@ -14,15 +14,16 @@ namespace Mmicovic.RPSSL.API.Controllers
      * It works by relaying the requests to the GameManager class of it's Service.
      * The returned objects are converted to the API's object set, which has support
      * for JSON serialization as per desired API formats. */
-    public class GameplayController(ILogger<GameplayController> logger) : ControllerBase
+    public class GameplayController(IGameManager gameManager, ILogger<GameplayController> logger) : ControllerBase
     {
-        private readonly IGameManager gameManager = new GameManager();
+        private readonly IGameManager gameManager = gameManager;
         private readonly ILogger<GameplayController> logger = logger;
 
         // GET: api/choices
         [HttpGet("choices")]
         public IEnumerable<Shape> GetChoices()
         {
+            logger.LogDebug("Received request for all choices");
             return gameManager.GetAllShapes().Select(s => new Shape(s));
         }
 
@@ -30,17 +31,24 @@ namespace Mmicovic.RPSSL.API.Controllers
         [HttpGet("choice")]
         public Shape GetRandomChoice()
         {
+            logger.LogDebug("Received request for a random choice");
+
             var randomShape = gameManager.GetRandomShape();
+            logger.LogDebug($"Random choice generated: {randomShape.Name}");
+
             return new Shape(randomShape);
         }
 
         // POST api/play
         [HttpPost("play")]
-        public GameRecord Post([FromBody] PlayCommand command)
+        public GameRecord PostNewComputerGame([FromBody] PlayCommand command)
         {
-            var record = gameManager.PlayAgainstComputer(command.ShapeId);
+            logger.LogDebug($"Received request for a new CPU game with player shape: {command.ShapeId}");
 
-            logger.LogDebug($"A game has been played with shape {command.ShapeId}, result: {record.Result}");
+            var record = gameManager.PlayAgainstComputer(command.ShapeId);
+            logger.LogDebug($"A CPU game has been played with shape {record.Player1Choice} against {record.Player2Choice}, " +
+                            $"Result: {record.Result}");
+
             return new GameRecord(record);
         }
     }

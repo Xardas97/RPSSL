@@ -1,4 +1,6 @@
-﻿using Mmicovic.RPSSL.Service.Models;
+﻿using Microsoft.Extensions.Logging;
+
+using Mmicovic.RPSSL.Service.Models;
 
 namespace Mmicovic.RPSSL.Service
 {
@@ -15,10 +17,12 @@ namespace Mmicovic.RPSSL.Service
      * It can generate random shapes both by request and for the CPU player of a game.
      * For number generation the insecure basic .NET pseudonumber generator is temporarily used.
      * The algorithm for deciding the winner of a game is described in more detailed in the project documentation. */
-    public class GameManager : IGameManager
+    public class GameManager (ILogger<GameManager> logger) : IGameManager
     {
         private const int SHAPE_MIN = 1;
         private const int SHAPE_MAX = 5;
+
+        private readonly ILogger<GameManager> logger = logger;
 
         private readonly List<Shape> allShapes = [new(1, "rock"), new(2, "paper"), new(3, "scissors"),
                                                   new(4, "spock"), new(5, "lizard")];
@@ -38,17 +42,22 @@ namespace Mmicovic.RPSSL.Service
 
         public GameRecord PlayAgainstComputer(int playerShape)
         {
+            logger.LogInformation($"CPU game enganged with shape: {playerShape}");
+
             // Verify that the player picked a correct IDs
             VerifyShapeIdRange(playerShape);
 
             // Choose a random shape for the Computer
             var computerShape = GetRandomShape().Id;
+            logger.LogInformation($"CPU chose shape: {computerShape}");
 
             var result = CalculateGameResult(playerShape, computerShape);
+            logger.LogInformation($"Calculated game result: {result}");
+
             return new GameRecord(result, playerShape, computerShape);
         }
 
-        private static Result CalculateGameResult(int player1Shape, int player2Shape)
+        private Result CalculateGameResult(int player1Shape, int player2Shape)
         {
             // If both players picked the same ID, it's a tie
             if (player1Shape == player2Shape)
@@ -56,6 +65,7 @@ namespace Mmicovic.RPSSL.Service
 
             // Calculate the difference between shape IDs with modulo 5
             var comparison = (player2Shape - player1Shape + SHAPE_MAX) % SHAPE_MAX;
+            logger.LogDebug($"Shape comparison post-modulo: {comparison}");
 
             // Player 1 wins against IDs that are bigger by even numbers, loses otherwise
             // Refer to documentation for detailed explanation
@@ -65,10 +75,11 @@ namespace Mmicovic.RPSSL.Service
                 return Result.Lose;
         }
 
-        private static void VerifyShapeIdRange(int shapeId)
+        private void VerifyShapeIdRange(int shapeId)
         {
             if (shapeId < SHAPE_MIN || shapeId > SHAPE_MAX)
             {
+                logger.LogWarning($"Unsupported shape ID inputted: {shapeId}");
                 throw new ArgumentOutOfRangeException("Shape ID is out of the offered range");
             }
         }
