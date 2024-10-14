@@ -20,7 +20,7 @@ namespace Mmicovic.RPSSL.API
             builder.Services.AddSwaggerGen();
 
             // Add custom CORS policies
-            CorsSetup.AddCorsPolicies(builder.Services);
+            CorsSetup.AddCorsPolicies(builder.Services, builder.Configuration);
             // Setup all default dependencies
             DependencyInjection.SetupDefaultDependencies(builder.Services);
 
