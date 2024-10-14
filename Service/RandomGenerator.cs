@@ -10,7 +10,7 @@ namespace Mmicovic.RPSSL.Service
 {
     public interface IRandomGenerator
     {
-        Task<int> Next(int minValue, int maxValue);
+        Task<int> Next(int minValue, int maxValue, CancellationToken ct);
     }
 
     public class NumberGenerationUnavailableException : Exception { };
@@ -29,7 +29,7 @@ namespace Mmicovic.RPSSL.Service
         private readonly IConfiguration configuration = configuration;
         private readonly ILogger<ExternalRandomGenerator> logger = logger;
 
-        public async Task<int> Next(int minValue, int maxValue)
+        public async Task<int> Next(int minValue, int maxValue, CancellationToken ct)
         {
             if (minValue >= maxValue)
                 throw new ArgumentException("maxValue must be strictly greater than minValue");
@@ -49,7 +49,11 @@ namespace Mmicovic.RPSSL.Service
 
                     // The response needs to be mapped to our desired [minValue, maxValue) range
                     return TransposeResponse(randomNumber, minValue, maxValue);
-                });
+                }, ct);
+            }
+            catch (TaskCanceledException) {
+                logger.LogDebug("The call has been cancelled");
+                throw;
             }
             catch (Exception ex)
             {

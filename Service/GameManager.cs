@@ -7,10 +7,10 @@ namespace Mmicovic.RPSSL.Service
 
     public interface IGameManager
     {
-        Task<Shape> GetRandomShape();
+        Task<Shape> GetRandomShape(CancellationToken ct);
         IEnumerable<Shape> GetAllShapes();
 
-        Task<GameRecord> PlayAgainstComputer(int playerShape);
+        Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct);
     }
 
     /* This class implements methods used for accesing the valid hand shapes and playing the game.
@@ -34,13 +34,13 @@ namespace Mmicovic.RPSSL.Service
             return allShapes;
         }
 
-        public async Task<Shape> GetRandomShape()
+        public async Task<Shape> GetRandomShape(CancellationToken ct)
         {
-            var randomShape = await randomGenerator.Next(0, allShapes.Count);
+            var randomShape = await randomGenerator.Next(0, allShapes.Count, ct);
             return allShapes[randomShape];
         }
 
-        public async Task<GameRecord> PlayAgainstComputer(int playerShape)
+        public async Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct)
         {
             logger.LogInformation($"CPU game enganged with shape: {playerShape}");
 
@@ -48,7 +48,7 @@ namespace Mmicovic.RPSSL.Service
             VerifyShapeIdRange(playerShape);
 
             // Choose a random shape for the Computer
-            var computerShape = (await GetRandomShape()).Id;
+            var computerShape = (await GetRandomShape(ct)).Id;
             logger.LogInformation($"CPU chose shape: {computerShape}");
 
             var result = CalculateGameResult(playerShape, computerShape);

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Cors;
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
 using Mmicovic.RPSSL.API.Validators;
-using Mmicovic.RPSSL.API.Exceptions;
 
 namespace Mmicovic.RPSSL.API.Controllers
 {
@@ -31,11 +30,11 @@ namespace Mmicovic.RPSSL.API.Controllers
 
         // GET: api/choice
         [HttpGet("choice")]
-        public async Task<Shape> GetRandomChoice()
+        public async Task<Shape> GetRandomChoice(CancellationToken ct)
         {
             logger.LogDebug("Received request for a random choice");
 
-            var randomShape = await gameManager.GetRandomShape();
+            var randomShape = await gameManager.GetRandomShape(ct);
             logger.LogDebug($"Random choice generated: {randomShape.Name}");
 
             return new Shape(randomShape);
@@ -43,12 +42,12 @@ namespace Mmicovic.RPSSL.API.Controllers
 
         // POST api/play
         [HttpPost("play")]
-        public async Task<GameRecord> PostNewComputerGame([FromBody] PlayCommand command)
+        public async Task<GameRecord> PostNewComputerGame([FromBody] PlayCommand command, CancellationToken ct)
         {
             logger.LogDebug($"Received request for a new CPU game with player shape: {command.ShapeId}");
             new PostNewComputerGameValidator().Validate(command);
 
-            var record = await gameManager.PlayAgainstComputer(command.ShapeId!.Value);
+            var record = await gameManager.PlayAgainstComputer(command.ShapeId!.Value, ct);
             logger.LogDebug($"A CPU game has been played with shape {record.Player1Choice} against {record.Player2Choice}, " +
                             $"Result: {record.Result}");
 
