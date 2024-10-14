@@ -2,9 +2,32 @@
 
 A web app implementation of **Rock-Paper-Scissors-Spock-Lizard** through an ASP.NET REST Service.
 
+## Running with Docker
+
+You first need to generate the docker image and then run it in a container. Position yourself in the root directory and run the following commands:
+```
+docker build -t rpssl -f RPSSL.API/Dockerfile .
+docker run -it --rm -p 0:8080 -p 0:8081 -e --name rpssl rpssl
+```
+
+The first command will create the docker image for linux environment which can be started in a container with the second command. When you exit the program with *ctrl+c* the container will be deleted.
+
+If you wish to run it in the Development mode which also gives access to swagger, add this parameter to the *docker run* command:
+```
+-e "ASPNETCORE_ENVIRONMENT=Development"
+```
+
+Http port is 8080 by default, HTTPS is at 8081. To see which localhost ports the Docker container ports are mapped to run:
+```
+docker ps -a
+```
+
+You can access the swagger API docs at: localhost:port/swagger\
+The base API url is: localhost:port/api
+
 ## Test UI
 
-To setup the [test UI](https://codechallenge.boohma.com/) you need to input the root url of this API: <https://localhost:[port]/api>.
+To setup the [test UI](https://codechallenge.boohma.com/) you need to input the root url of this API: <[http/https]://localhost:[port]/api>.
 
 After that the basic functionallities of the API can be tested in this lightweight environment.
 
