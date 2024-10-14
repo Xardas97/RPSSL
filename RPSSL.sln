@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{88A8F597-3E9D-4A0F-91F8-85B3EA153C6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RPSSL.API", "RPSSL.API\RPSSL.API.csproj", "{88A8F597-3E9D-4A0F-91F8-85B3EA153C6A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{E67D45FC-1F90-4714-9193-B1A138627606}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RPSSL.Service", "RPSSL.Service\RPSSL.Service.csproj", "{E67D45FC-1F90-4714-9193-B1A138627606}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
