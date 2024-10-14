@@ -63,7 +63,7 @@ namespace Mmicovic.RPSSL.Service
             }
         }
 
-        public static ResiliencePipeline BuildRetryPipeline(int maxRetries, TimeSpan delay)
+        private static ResiliencePipeline BuildRetryPipeline(int maxRetries, TimeSpan delay)
         {
             var retryOptions = new RetryStrategyOptions
             {
@@ -75,7 +75,7 @@ namespace Mmicovic.RPSSL.Service
                     .Build();
         }
 
-        public async Task<string> SendRequest(CancellationToken token)
+        private async Task<string> SendRequest(CancellationToken token)
         {
             var externalGeneratorUrl = configuration.GetConnectionString(EXTERNAL_GENERATOR_URL_CONFIG);
 
@@ -86,14 +86,14 @@ namespace Mmicovic.RPSSL.Service
             return await responseMessage.Content.ReadAsStringAsync(token);
         }
 
-        public int ParseResponse(string response)
+        private int ParseResponse(string response)
         {
             logger.LogDebug($"Parsing external random number response: {response}...");
             var jsonResponse = JsonNode.Parse(response);
             return jsonResponse![RANDOM_NUMBER_FIELD]!.GetValue<int>();
         }
 
-        public int TransposeResponse(int random, int minValue, int maxValue)
+        private int TransposeResponse(int random, int minValue, int maxValue)
         {
             logger.LogDebug($"Transposing external random number: {random}...");
 
