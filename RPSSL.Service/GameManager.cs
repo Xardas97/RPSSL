@@ -10,34 +10,39 @@ namespace Mmicovic.RPSSL.Service
         Task<Shape> GetRandomShape(CancellationToken ct);
         IEnumerable<Shape> GetAllShapes();
 
+        bool IsValidShapeId(int shapeId);
+
         Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct);
     }
 
     /* This class implements methods used for accesing the valid hand shapes and playing the game.
+     * It does that as a fascade which provides a single point of access to and simplifies the usage
+     * of underlying services (RandomGenerator, ShapeProvider, GameResultCalculator)
      * It can generate random shapes both by request and for the CPU player of a game.
-     * For number generation an external pseudorandom generator i used.
-     * The algorithm for deciding the winner of a game is described in more detailed in the project documentation. */
-    public class GameManager(IRandomGenerator randomGenerator, ILogger<GameManager> logger) : IGameManager
+     * For number generation an external pseudorandom generator is used. */
+    public class GameManager(IRandomGenerator randomGenerator, IGameResultCalculator gameResultCalculator,
+                             IShapeProvider shapeProvider, ILogger<GameManager> logger) : IGameManager
     {
-        public const int SHAPE_MIN = 1;
-        public const int SHAPE_MAX = 5;
-
-        private readonly IRandomGenerator randomGenerator = randomGenerator;
         private readonly ILogger<GameManager> logger = logger;
-
-        private readonly List<Shape> allShapes = [new(1, "rock"), new(2, "paper"), new(3, "scissors"),
-                                                  new(4, "spock"), new(5, "lizard")];
+        private readonly IShapeProvider shapeProvider = shapeProvider;
+        private readonly IRandomGenerator randomGenerator = randomGenerator;
+        private readonly IGameResultCalculator gameResultCalculator = gameResultCalculator;
 
 
         public IEnumerable<Shape> GetAllShapes()
         {
-            return allShapes;
+            return shapeProvider.GetAllShapes();
         }
 
         public async Task<Shape> GetRandomShape(CancellationToken ct)
         {
-            var randomShape = await randomGenerator.Next(0, allShapes.Count, ct);
-            return allShapes[randomShape];
+            var randomShapeId = await randomGenerator.Next(1, shapeProvider.GetMaxShapeId() + 1, ct);
+            return shapeProvider.GetShape(randomShapeId);
+        }
+
+        public bool IsValidShapeId(int shapeId)
+        {
+            return shapeProvider.IsValidShapeId(shapeId);
         }
 
         public async Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct)
@@ -51,33 +56,17 @@ namespace Mmicovic.RPSSL.Service
             var computerShape = (await GetRandomShape(ct)).Id;
             logger.LogInformation($"CPU chose shape: {computerShape}");
 
-            var result = CalculateGameResult(playerShape, computerShape);
+            // Calculate the result of the game
+            var result = gameResultCalculator.Calculate(playerShape, computerShape);
             logger.LogInformation($"Calculated game result: {result}");
 
+            // Create a game record
             return new GameRecord(result, playerShape, computerShape);
-        }
-
-        private Result CalculateGameResult(int player1Shape, int player2Shape)
-        {
-            // If both players picked the same ID, it's a tie
-            if (player1Shape == player2Shape)
-                return Result.Tie;
-
-            // Calculate the difference between shape IDs with modulo 5
-            var comparison = (player2Shape - player1Shape + SHAPE_MAX) % SHAPE_MAX;
-            logger.LogDebug($"Shape comparison post-modulo: {comparison}");
-
-            // Player 1 wins against IDs that are bigger by even numbers, loses otherwise
-            // Refer to documentation for detailed explanation
-            if (comparison % 2 == 0)
-                return Result.Win;
-            else
-                return Result.Lose;
         }
 
         private void VerifyShapeIdRange(int shapeId)
         {
-            if (shapeId < SHAPE_MIN || shapeId > SHAPE_MAX)
+            if (!shapeProvider.IsValidShapeId(shapeId))
             {
                 logger.LogWarning($"Unsupported shape ID inputted: {shapeId}");
                 throw new ArgumentOutOfRangeException("Chosen shape does not exist");

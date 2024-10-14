@@ -45,7 +45,7 @@ namespace Mmicovic.RPSSL.API.Controllers
         public async Task<GameRecord> PostNewComputerGame([FromBody] PlayCommand command, CancellationToken ct)
         {
             logger.LogDebug($"Received request for a new CPU game with player shape: {command.ShapeId}");
-            new PostNewComputerGameValidator().Validate(command);
+            new PostNewComputerGameValidator(gameManager.IsValidShapeId).Validate(command);
 
             var record = await gameManager.PlayAgainstComputer(command.ShapeId!.Value, ct);
             logger.LogDebug($"A CPU game has been played with shape {record.Player1Choice} against {record.Player2Choice}, " +
