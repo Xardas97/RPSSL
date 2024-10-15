@@ -51,12 +51,14 @@ namespace Mmicovic.RPSSL.Service
                     return TransposeResponse(randomNumber, minValue, maxValue);
                 }, ct);
             }
-            catch (TaskCanceledException) {
-                logger.LogDebug("The call has been cancelled");
-                throw;
-            }
             catch (Exception ex)
             {
+                if (ct.IsCancellationRequested && ex is TaskCanceledException)
+                {
+                    logger.LogDebug("The call has been cancelled");
+                    throw;
+                }
+
                 // The stack trace is lost here, so we log the error first
                 logger.LogError(ex, ex.Message);
                 throw new NumberGenerationUnavailableException();

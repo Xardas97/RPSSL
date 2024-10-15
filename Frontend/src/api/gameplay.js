@@ -20,10 +20,22 @@ async function sendPostRequest(path, requestBody){
 }
 
 async function sendRequest(path, options) {
-    const response = await fetch(process.env.REACT_APP_API_URL + path, options)
+    let response;
+    try {
+        response = await fetch(process.env.REACT_APP_API_URL + path, options)
+    }
+    catch(ex) {
+        console.log("Failed to reach the server, response code: " + ex)
+        alert("Failed to reach the server!");
+        return null;
+    }
 
-    if (response.status != 200){
-      console.log("Failed to reach the server, response code: " + response.status)
+    if (response.status != 200) {
+      const responseBody = await response.json();
+      console.log("Request failed! Response code: " + response.status + ", Response body: " + JSON.stringify(responseBody));
+
+      const responseAlert = responseBody["title"] ? "\n" + responseBody["title"] : "";
+      alert("Failed to execute the action!" + responseAlert);
       return null;
     }
 
