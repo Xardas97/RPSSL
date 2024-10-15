@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGetChoices } from "./api/gameplay";
-import { apiGetScoreboard, apiDeleteScoreboard } from "./api/scoreboard";
+import { apiGetScoreboard, apiDeleteScoreboard, apiDeleteGameRecord } from "./api/scoreboard";
 import GameScreen from "./gameplay/GameScreen"
 import Scoreboard from "./scoreboard/Scoreboard";
 
@@ -30,8 +30,12 @@ export default function RPSSL() {
     setGameRecords(newGameRecords);
   }
 
-  async function deleteRecords() {
-    await apiDeleteScoreboard();
+  async function deleteRecords(id) {
+    if (id)
+      await apiDeleteGameRecord(id);
+    else
+      await apiDeleteScoreboard();
+
     await loadScoreboard();
   }
 

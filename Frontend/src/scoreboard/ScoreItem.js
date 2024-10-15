@@ -1,7 +1,7 @@
 import ShapeImage from '../gameplay/ShapeImage';
 import "./styles.css";
 
-export default function ScoreItem({record, getShapeName}) {
+export default function ScoreItem({record, getShapeName, onDeleteRecord}) {
   let resultMessage;
   let resultMessageColor;
   switch(record.results) {
@@ -28,6 +28,9 @@ export default function ScoreItem({record, getShapeName}) {
       <div className="score-item-shape">
         <ShapeImage shape={getShapeName(record.computer)}/>
       </div>
+      <button className="score-item-button" onClick={onDeleteRecord}>
+        <img className="score-item-button-image" src={require("./images/delete.png")}></img>
+      </button>
     </div>
   )
 }

@@ -15,6 +15,22 @@
     font-weight: bold;
     text-align: center;
   }
+
+  .score-item-button {
+    border: 0px;
+    width: 10%;
+    height: 100%;
+    background: transparent;
+
+    .score-item-button-image {
+      width: 100%;
+      height: 100%;
+    }
+
+    .score-item-button-image:hover {
+      background: rgba(0,0,0,0.1);
+    }
+  }
 }
 
 .scoreboard {

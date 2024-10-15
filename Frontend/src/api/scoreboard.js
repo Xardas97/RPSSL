@@ -7,3 +7,7 @@ export const apiGetScoreboard = async (take) => {
 export const apiDeleteScoreboard = async () => {
     return await sendDeleteRequest("play");
 }
+
+export const apiDeleteGameRecord = async (id) => {
+    return await sendDeleteRequest("play/" + id);
+}
