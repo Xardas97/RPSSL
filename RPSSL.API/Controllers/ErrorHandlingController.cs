@@ -57,6 +57,9 @@ namespace Mmicovic.RPSSL.API.Controllers
             if (exception is NumberGenerationUnavailableException)
                 return new HttpNumberGenerationUnavailableException();
 
+            if (exception is UserAlreadyExistsException)
+                return new HttpAlreadyExistsException("User with that name already exists");
+
             return exception;
         }
     }

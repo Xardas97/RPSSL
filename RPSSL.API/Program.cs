@@ -1,3 +1,4 @@
+using Mmicovic.RPSSL.API.Initialization;
 
 namespace Mmicovic.RPSSL.API
 {
@@ -17,12 +18,14 @@ namespace Mmicovic.RPSSL.API
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
-            // Add custom CORS policies
+            // Setup CORS, JWT Auth, Dependency injection
             CorsSetup.AddCorsPolicies(builder.Services, builder.Configuration);
-            // Setup all default dependencies
-            DependencyInjection.SetupDefaultDependencies(builder.Services);
+            AuthorizationSetup.AddJwtAuthenticationAndAuthorization(builder.Services, builder.Configuration);
+            DependencyInjector.SetupDefaultDependencies(builder.Services);
+
+            // Setup Swagger
+            SwaggerSetup.AddSwaggerGeneration(builder.Services);
 
             var app = builder.Build();
 
@@ -39,10 +42,10 @@ namespace Mmicovic.RPSSL.API
             }
 
             app.UseHttpsRedirection();
+            app.UseCors();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-
-            app.UseCors();
 
             app.Run();
         }

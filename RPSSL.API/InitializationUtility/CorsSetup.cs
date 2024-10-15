@@ -1,6 +1,6 @@
 ﻿using Microsoft.Net.Http.Headers;
 
-namespace Mmicovic.RPSSL.API
+namespace Mmicovic.RPSSL.API.Initialization
 {
     public class CorsSetup
     {
@@ -20,11 +20,13 @@ namespace Mmicovic.RPSSL.API
                                   policy => policy.WithOrigins(frontendUrl)
                                                   .WithOrigins(TEST_UI_URL)
                                                   .WithHeaders(HeaderNames.ContentType)
+                                                  .WithHeaders(HeaderNames.Authorization)
                                                   .WithMethods(HttpMethod.Delete.ToString()));
 
                 // Allow frontend in the default policy as well
                 options.AddDefaultPolicy(policy => policy.WithOrigins(frontendUrl)
                                                          .WithHeaders(HeaderNames.ContentType)
+                                                         .WithHeaders(HeaderNames.Authorization)
                                                          .WithMethods(HttpMethod.Delete.ToString()));
             });
         }

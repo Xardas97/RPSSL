@@ -44,6 +44,8 @@ The URL of the frontend needs to be added to the CORS policy of the service. In 
 
 To setup the [test UI](https://codechallenge.boohma.com/) you need to input the root url of this API: <[http/https]://localhost:[port]/api>.
 
+You also need to disable JWT Authentication and Authorizaiton in the RPSSL.API Program.cs
+
 After that the basic functionallities of the API can be tested in this lightweight environment.
 
 ## Random number generation
