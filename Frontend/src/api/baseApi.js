@@ -1,27 +1,26 @@
-export async function sendPostRequest(path, requestBody){
-    console.log("Request body: " + JSON.stringify(requestBody))
-
-    return await sendRequest(path, {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-        headers: {
-            "Content-type": "application/json"
-        }
-    })
+export async function sendPostRequest(path, requestBody) {
+    const body = JSON.stringify(requestBody);
+    console.log("Request body: " + body)
+    return await sendRequest(path, "POST", body);
 }
 
 export async function sendDeleteRequest(path){
-    return await sendRequest(path, {
-        method: "DELETE"
-    })
+    return await sendRequest(path, "DELETE");
 }
 
-export async function sendRequest(path, options) {
+export async function sendRequest(path, method = "GET", body = null) {
     let response;
     try {
-        response = await fetch(process.env.REACT_APP_API_URL + path, options)
+        response = await fetch(process.env.REACT_APP_API_URL + path, {
+            method: method,
+            headers: {
+                "Content-type": "application/json",
+                'Authorization': 'Bearer ' + process.env.REACT_APP_API_TOKEN
+            },
+            body: body
+        });
     }
-    catch(ex) {
+    catch (ex) {
         console.warn("Failed to reach the server, response code: " + ex)
         alert("Failed to reach the server!");
         return null;
