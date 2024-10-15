@@ -40,18 +40,38 @@ namespace Mmicovic.RPSSL.API.Controllers
             return new Shape(randomShape);
         }
 
+        // GET api/play
+        [HttpGet("play")]
+        public async Task<IEnumerable<GameRecord>> GetGameRecords([FromQuery] int? take, CancellationToken ct)
+        {
+            logger.LogDebug($"Received request for saved game records, take: {take}");
+
+            var records = await gameManager.GetGameRecords(take, ct);
+            logger.LogDebug($"Returning {records.Count()} records");
+
+            return records.Select(r => new GameRecord(r));
+        }
+
         // POST api/play
         [HttpPost("play")]
-        public async Task<GameRecord> PostNewComputerGame([FromBody] PlayCommand command, CancellationToken ct)
+        public async Task<GameRecord> PostGameRecord([FromBody] GameRecord command, CancellationToken ct)
         {
-            logger.LogDebug($"Received request for a new CPU game with player shape: {command.ShapeId}");
-            new PostNewComputerGameValidator(gameManager.IsValidShapeId).Validate(command);
+            logger.LogDebug($"Received request for a new game with player shape: {command.PlayerChoice}");
+            new PostGameRecordValidator(gameManager.IsValidShapeId).Validate(command);
 
-            var record = await gameManager.PlayAgainstComputer(command.ShapeId!.Value, ct);
-            logger.LogDebug($"A CPU game has been played with shape {record.Player1Choice} against {record.Player2Choice}, " +
+            var record = await gameManager.Play(command.ToServiceObject(), ct);
+            logger.LogDebug($"A game has been played with shape {record.PlayerChoice} against {record.ComputerChoice}, " +
                             $"Result: {record.Result}");
 
             return new GameRecord(record);
+        }
+
+        // DELETE api/play
+        [HttpDelete("play")]
+        public async Task DeleteGameRecords()
+        {
+            logger.LogDebug($"Received request to delete game records");
+            await gameManager.DeleteGameRecords();
         }
     }
 }

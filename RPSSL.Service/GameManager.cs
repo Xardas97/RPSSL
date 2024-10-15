@@ -12,21 +12,26 @@ namespace Mmicovic.RPSSL.Service
 
         bool IsValidShapeId(int shapeId);
 
-        Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct);
+        Task<GameRecord> Play(GameRecord gameRecord, CancellationToken ct);
+
+        Task DeleteGameRecords();
+        Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct);
     }
 
     /* This class implements methods used for accesing the valid hand shapes and playing the game.
      * It does that as a fascade which provides a single point of access to and simplifies the usage
-     * of underlying services (RandomGenerator, ShapeProvider, GameResultCalculator)
+     * of underlying services (RandomGenerator, ShapeProvider, GameResultCalculator, GameRecordRepository)
      * It can generate random shapes both by request and for the CPU player of a game.
      * For number generation an external pseudorandom generator is used. */
     public class GameManager(IRandomGenerator randomGenerator, IGameResultCalculator gameResultCalculator,
-                             IShapeProvider shapeProvider, ILogger<GameManager> logger) : IGameManager
+                             IShapeProvider shapeProvider, IGameRecordRepository gameRecordRepository,
+                             ILogger<GameManager> logger) : IGameManager
     {
         private readonly ILogger<GameManager> logger = logger;
         private readonly IShapeProvider shapeProvider = shapeProvider;
         private readonly IRandomGenerator randomGenerator = randomGenerator;
         private readonly IGameResultCalculator gameResultCalculator = gameResultCalculator;
+        private readonly IGameRecordRepository gameRecordRepository = gameRecordRepository;
 
 
         public IEnumerable<Shape> GetAllShapes()
@@ -45,9 +50,10 @@ namespace Mmicovic.RPSSL.Service
             return shapeProvider.IsValidShapeId(shapeId);
         }
 
-        public async Task<GameRecord> PlayAgainstComputer(int playerShape, CancellationToken ct)
+        public async Task<GameRecord> Play(GameRecord gameRecord, CancellationToken ct)
         {
-            logger.LogInformation($"CPU game enganged with shape: {playerShape}");
+            var playerShape = gameRecord.PlayerChoice;
+            logger.LogInformation($"New game enganged with shape: {playerShape}");
 
             // Verify that the player picked a correct IDs
             VerifyShapeIdRange(playerShape);
@@ -57,20 +63,36 @@ namespace Mmicovic.RPSSL.Service
             logger.LogInformation($"CPU chose shape: {computerShape}");
 
             // Calculate the result of the game
-            var result = gameResultCalculator.Calculate(playerShape, computerShape);
+            var result = gameResultCalculator.Calculate(playerShape!.Value, computerShape);
             logger.LogInformation($"Calculated game result: {result}");
 
-            // Create a game record
-            return new GameRecord(result, playerShape, computerShape);
+            // Fill new game record fields
+            gameRecord.ComputerChoice = computerShape;
+            gameRecord.Result = result;
+
+            // Save game record to the database
+            await gameRecordRepository.SaveGameRecord(gameRecord);
+
+            return gameRecord;
         }
 
-        private void VerifyShapeIdRange(int shapeId)
+        private void VerifyShapeIdRange(int? shapeId)
         {
-            if (!shapeProvider.IsValidShapeId(shapeId))
+            if (shapeId is null || !IsValidShapeId(shapeId.Value))
             {
                 logger.LogWarning($"Unsupported shape ID inputted: {shapeId}");
                 throw new ArgumentOutOfRangeException("Chosen shape does not exist");
             }
+        }
+
+        public async Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct)
+        {
+            return await gameRecordRepository.GetGameRecords(take, ct);
+        }
+
+        public async Task DeleteGameRecords()
+        {
+            await gameRecordRepository.DeleteGameRecords();
         }
     }
 }

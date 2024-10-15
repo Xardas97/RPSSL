@@ -4,6 +4,7 @@ using Moq;
 using Xunit;
 
 using Mmicovic.RPSSL.Service.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mmicovic.RPSSL.Service.Tests
 {
@@ -27,9 +28,14 @@ namespace Mmicovic.RPSSL.Service.Tests
             randomGenerator = new Mock<IRandomGenerator>();
             gameResultCalculator = new Mock<IGameResultCalculator>();
 
+            var gameRecordsSet = new Mock<DbSet<GameRecord>>();
+            var gameRecordContext = new Mock<GameRecordContext>();
+            gameRecordContext.Setup(m => m.GameRecords).Returns(gameRecordsSet.Object);
+            var gameRecordRepository = new GameRecordRepository(gameRecordContext.Object);
+
             var logger = new Mock<ILogger<GameManager>>();
             gameManager = new GameManager(randomGenerator.Object, gameResultCalculator.Object,
-                                          shapeProvider.Object, logger.Object);
+                                          shapeProvider.Object, gameRecordRepository, logger.Object);
         }
 
         [Theory]
@@ -50,7 +56,7 @@ namespace Mmicovic.RPSSL.Service.Tests
                                 .Returns(expectedResult);
 
             // Execution
-            var gameRecord = await gameManager.PlayAgainstComputer(PLAYER_SHAPE_ID, ct);
+            var gameRecord = await gameManager.Play(new GameRecord(PLAYER_SHAPE_ID), ct);
 
             // Verification
             shapeProvider.Verify(sp => sp.IsValidShapeId(PLAYER_SHAPE_ID), Times.Once);
@@ -58,8 +64,8 @@ namespace Mmicovic.RPSSL.Service.Tests
             gameResultCalculator.Verify(grc => grc.Calculate(PLAYER_SHAPE_ID, GENERATED_SHAPE_ID), Times.Once);
 
             Assert.Equal(expectedResult, gameRecord.Result);
-            Assert.Equal(PLAYER_SHAPE_ID, gameRecord.Player1Choice);
-            Assert.Equal(GENERATED_SHAPE_ID, gameRecord.Player2Choice);
+            Assert.Equal(PLAYER_SHAPE_ID, gameRecord.PlayerChoice);
+            Assert.Equal(GENERATED_SHAPE_ID, gameRecord.ComputerChoice);
         }
 
         [Fact]
@@ -70,7 +76,7 @@ namespace Mmicovic.RPSSL.Service.Tests
             shapeProvider.Setup(sp => sp.IsValidShapeId(PLAYER_SHAPE_ID)).Returns(false);
 
             // Execution
-            var execute = async () => await gameManager.PlayAgainstComputer(PLAYER_SHAPE_ID, ct);
+            var execute = async () => await gameManager.Play(new GameRecord(PLAYER_SHAPE_ID), ct);
 
             // Verification
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(execute);

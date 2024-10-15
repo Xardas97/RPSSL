@@ -10,16 +10,30 @@ namespace Mmicovic.RPSSL.API.Models
         public SnakeCaseJsonStringEnumConverter() : base(JsonNamingPolicy.SnakeCaseLower) { }
     }
 
-    public class GameRecord(Service.Models.GameRecord serviceObject)
+    public class GameRecord(long? id, Result? result, int? playerChoice, int? computerChoice)
     {
+        public GameRecord(Service.Models.GameRecord serviceObject)
+            : this(serviceObject.Id, serviceObject.Result, serviceObject.PlayerChoice, serviceObject.ComputerChoice)
+        { }
+
+        public GameRecord() : this(null, null, null, null) { }
+
+        [JsonPropertyName("id")]
+        public long? Id { get; init; } = id;
+
         [JsonPropertyName("results")]
         [JsonConverter(typeof(SnakeCaseJsonStringEnumConverter))]
-        public Result Result { get; init; } = serviceObject.Result;
+        public Result? Result { get; init; } = result;
 
         [JsonPropertyName("player")]
-        public int PlayerChoice { get; init; } = serviceObject.Player1Choice;
+        public int? PlayerChoice { get; init; } = playerChoice;
 
         [JsonPropertyName("computer")]
-        public int ComputerChoice { get; init; } = serviceObject.Player2Choice;
+        public int? ComputerChoice { get; init; } = computerChoice;
+
+        public Service.Models.GameRecord ToServiceObject()
+        {
+            return new Service.Models.GameRecord(Result, PlayerChoice, ComputerChoice);
+        }
     }
 }

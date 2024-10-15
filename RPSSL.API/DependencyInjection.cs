@@ -1,4 +1,7 @@
-﻿using Mmicovic.RPSSL.Service;
+﻿using Microsoft.EntityFrameworkCore;
+
+using Mmicovic.RPSSL.Service;
+using Mmicovic.RPSSL.Service.Models;
 
 namespace Mmicovic.RPSSL.API
 {
@@ -10,6 +13,10 @@ namespace Mmicovic.RPSSL.API
             services.AddScoped<IGameResultCalculator, GameResultCalculator>();
             services.AddScoped<IGameManager, GameManager>();
             services.AddScoped<IRandomGenerator, ExternalRandomGenerator>();
+
+            // Inject database repositories and contexts
+            services.AddScoped<IGameRecordRepository, GameRecordRepository>();
+            services.AddDbContext<GameRecordContext>(opt => opt.UseInMemoryDatabase("GameRecords"));
         }
     }
 }
