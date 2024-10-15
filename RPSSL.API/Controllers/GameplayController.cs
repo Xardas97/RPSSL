@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Cors;
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
 using Mmicovic.RPSSL.API.Validators;
+using Mmicovic.RPSSL.API.Exceptions;
 
 namespace Mmicovic.RPSSL.API.Controllers
 {
@@ -66,12 +67,24 @@ namespace Mmicovic.RPSSL.API.Controllers
             return new GameRecord(record);
         }
 
+        // DELETE api/play/{id}
+        [HttpDelete("play/{id}")]
+        public async Task DeleteGameRecord([FromRoute] string id, CancellationToken ct)
+        {
+            logger.LogDebug($"Received request to delete a game records: {id}");
+            new DeleteGameRecordValidator().Validate(id);
+
+            var deleted = await gameManager.DeleteGameRecords(long.Parse(id), ct);
+            if (!deleted)
+                throw new HttpNotFoundException("Game record not found");
+        }
+
         // DELETE api/play
         [HttpDelete("play")]
-        public async Task DeleteGameRecords()
+        public async Task DeleteGameRecords(CancellationToken ct)
         {
-            logger.LogDebug($"Received request to delete game records");
-            await gameManager.DeleteGameRecords();
+            logger.LogDebug($"Received request to delete all game records");
+            await gameManager.DeleteGameRecords(null, ct);
         }
     }
 }

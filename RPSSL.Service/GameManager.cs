@@ -14,7 +14,7 @@ namespace Mmicovic.RPSSL.Service
 
         Task<GameRecord> Play(GameRecord gameRecord, CancellationToken ct);
 
-        Task DeleteGameRecords();
+        Task<bool> DeleteGameRecords(long? id, CancellationToken ct);
         Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct);
     }
 
@@ -90,9 +90,15 @@ namespace Mmicovic.RPSSL.Service
             return await gameRecordRepository.GetGameRecords(take, ct);
         }
 
-        public async Task DeleteGameRecords()
+        public async Task<bool> DeleteGameRecords(long? id, CancellationToken ct)
         {
-            await gameRecordRepository.DeleteGameRecords();
+            if (id.HasValue)
+                return await gameRecordRepository.DeleteGameRecord(id.Value, ct);
+            else
+            {
+                await gameRecordRepository.DeleteGameRecords();
+                return true;
+            }
         }
     }
 }

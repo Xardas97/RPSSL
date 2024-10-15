@@ -5,6 +5,7 @@ namespace Mmicovic.RPSSL.Service.Models
     public interface IGameRecordRepository
     {
         Task DeleteGameRecords();
+        Task<bool> DeleteGameRecord(long id, CancellationToken ct);
         Task SaveGameRecord(GameRecord gameRecord);
         Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct);
     }
@@ -31,6 +32,18 @@ namespace Mmicovic.RPSSL.Service.Models
             // We don't want to interrupt saving to the DB, so we don't use a cancellation token
             gameRecordContext.GameRecords.Add(gameRecord);
             await gameRecordContext.SaveChangesAsync(CancellationToken.None);
+        }
+
+        public async Task<bool> DeleteGameRecord(long id, CancellationToken ct)
+        {
+            var gameRecord = await gameRecordContext.GameRecords.FindAsync(id, ct);
+            if (gameRecord is null)
+                return false;
+
+            // We don't want to interrupt saving to the DB, so we don't use a cancellation token
+            gameRecordContext.GameRecords.Remove(gameRecord);
+            await gameRecordContext.SaveChangesAsync(CancellationToken.None);
+            return true;
         }
 
         public async Task DeleteGameRecords()
