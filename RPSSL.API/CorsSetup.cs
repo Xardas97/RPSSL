@@ -19,11 +19,13 @@ namespace Mmicovic.RPSSL.API
                 options.AddPolicy(name: CORS_POLICY_TEST_UI,
                                   policy => policy.WithOrigins(frontendUrl)
                                                   .WithOrigins(TEST_UI_URL)
-                                                  .WithHeaders(HeaderNames.ContentType));
+                                                  .WithHeaders(HeaderNames.ContentType)
+                                                  .WithMethods(HttpMethod.Delete.ToString()));
 
                 // Allow frontend in the default policy as well
                 options.AddDefaultPolicy(policy => policy.WithOrigins(frontendUrl)
-                                                         .WithHeaders(HeaderNames.ContentType));
+                                                         .WithHeaders(HeaderNames.ContentType)
+                                                         .WithMethods(HttpMethod.Delete.ToString()));
             });
         }
     }

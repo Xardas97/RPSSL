@@ -1,0 +1,60 @@
+.score-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .score-item-shape {
+    width: 20%;
+  }
+
+  .result-message {
+    width: 15%;
+
+    font-size: 1vw;
+    font-weight: bold;
+    text-align: center;
+  }
+}
+
+.scoreboard {
+  width: 20%;
+  margin-top: 1%;
+
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 2%;
+
+  .scoreboard-header {
+    height: 5%;
+    gap: 5%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+
+    .scoreboard-header-title {
+      font-size: 2vw;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .scoreboard-header-button {
+      border: 0px;
+      width: 10%;
+      height: 100%;
+      background: transparent;
+
+      .scoreboard-header-button-image {
+        width: 100%;
+        height: 100%;
+      }
+
+      .scoreboard-header-button-image:hover {
+        background: rgba(0,0,0,0.1);
+      }
+    }
+  }
+}

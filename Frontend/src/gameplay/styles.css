@@ -71,8 +71,7 @@
 .game {
   top: 10%;
   bottom: 5%;
-  width: 100%;
-  position: absolute;
+  width: 80%;
 
   display: flex;
   align-items: center;
