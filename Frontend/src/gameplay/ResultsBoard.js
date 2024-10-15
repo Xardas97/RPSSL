@@ -1,3 +1,4 @@
+import ShapeImage from './ShapeImage';
 import "./styles.css";
 
 export default function ResultsBoard({playerShape, computerShape, result}) {
@@ -26,12 +27,16 @@ export default function ResultsBoard({playerShape, computerShape, result}) {
     <div className="results-board">
       <div className="results-column">
         <div>Player</div>
-        <img className="chosen-shape" src={require('./images/' + playerShape + '.png')}/>
+        <div className="chosen-shape">
+          <ShapeImage shape={playerShape}/>
+        </div>
       </div>
       <div className="result-message" style={{color: resultMessageColor}}>{resultMessage}</div>
       <div className="results-column">
         <div>Computer</div>
-        <img className="chosen-shape" src={require('./images/' + computerShape + '.png')}/>
+        <div className="chosen-shape">
+          <ShapeImage shape={computerShape}/>
+        </div>
       </div>
     </div>
   )

@@ -1,7 +1,10 @@
+import ShapeImage from './ShapeImage';
 import "./styles.css";
 
 export default function ChoiceOption({ value, onShapeClick }) {
   return (
-    <img className="shape-choice" src={require('./images/' + value + '.png')} onClick={onShapeClick}/>
+    <div className="shape-choice" onClick={onShapeClick}>
+      <ShapeImage shape={value}/>
+    </div>
   );
 }
