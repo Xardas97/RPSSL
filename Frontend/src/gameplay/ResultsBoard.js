@@ -1,9 +1,14 @@
+import { RiseLoader } from 'react-spinners';
 import ShapeImage from './ShapeImage';
 import "./styles.css";
 
-export default function ResultsBoard({playerShape, computerShape, result}) {
-  if (!result){
-    return (<div className="results-board"/>)
+export default function ResultsBoard({playerShape, computerShape, result, gameInProgress}) {
+  if (gameInProgress) {
+    return (<RiseLoader color="#99ff99" className="results-board"/>)
+  }
+
+  if (!result) {
+    return (<div className="results-empty"/>)
   }
 
   let resultMessage = "You ";

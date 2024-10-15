@@ -2,6 +2,8 @@ import GameScreen from "./gameplay/GameScreen"
 
 export default function RPSSL() {
   return (
-    <GameScreen/>
+    <div className="rpssl-main">
+      <GameScreen/>
+    </div>
   );
 }

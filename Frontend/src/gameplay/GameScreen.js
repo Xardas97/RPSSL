@@ -9,6 +9,7 @@ export default function GameScreen() {
   const [result,  setResult] = useState(null);
   const [playerShape, setPlayerShape] = useState(null);
   const [computerShape, setComputerShape] = useState(null);
+  const [gameInProgress, setGameInProgress] = useState(false);
 
   useEffect(() => {
     if (!shapes.length)
@@ -26,12 +27,18 @@ export default function GameScreen() {
       return shapes.find(s => s.id == shapeId).name
     }
 
+    if (gameInProgress)
+      return;
+
     setResult(null);
     setPlayerShape(null);
     setComputerShape(null);
 
+    setGameInProgress(true);
     console.log("Playing with: " + shape.name);
     const response = await apiPostPlay(shape);
+    setGameInProgress(false);
+
     if (!response)
       return;
 
@@ -45,8 +52,8 @@ export default function GameScreen() {
 
   return (
     <div className="game">
-      <ChoiceBoard shapes={shapes} playShape={playShape} />
-      <ResultsBoard playerShape={playerShape} computerShape={computerShape} result={result}/>
+      <ChoiceBoard shapes={shapes} disable={gameInProgress} onPlayShape={playShape} />
+      <ResultsBoard playerShape={playerShape} computerShape={computerShape} result={result} gameInProgress={gameInProgress} />
     </div>
   );
 }
