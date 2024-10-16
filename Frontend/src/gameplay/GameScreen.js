@@ -23,17 +23,16 @@ export default function GameScreen({shapes, onGamePlayed}) {
     setComputerShape(null);
 
     setGameInProgress(true);
-    console.log("Playing with: " + shape.name);
     const response = await apiPostPlay(shape);
     setGameInProgress(false);
 
-    if (!response)
+    if (!response.success)
       return;
 
-    const playerShape = getShapeName(response.player);
-    const computerShape = getShapeName(response.computer);
+    const playerShape = getShapeName(response.message.player);
+    const computerShape = getShapeName(response.message.computer);
 
-    setResult(response.results);
+    setResult(response.message.results);
     setPlayerShape(playerShape);
     setComputerShape(computerShape);
 

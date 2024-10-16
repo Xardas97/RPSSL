@@ -4,7 +4,7 @@ import { apiGetScoreboard, apiDeleteScoreboard, apiDeleteGameRecord } from "./ap
 import GameScreen from "./gameplay/GameScreen"
 import Scoreboard from "./scoreboard/Scoreboard";
 
-export default function RPSSL() {
+export default function MainScreen({onLogout}) {
   const [shapes, setShapes] = useState([]);
   const [gameRecords, setGameRecords] = useState(null);
 
@@ -18,16 +18,16 @@ export default function RPSSL() {
 
   async function loadChoices() {
     const newChoices = await apiGetChoices();
-    if (newChoices && JSON.stringify(newChoices) !== JSON.stringify(shapes))
-      setShapes(newChoices);
+    if (newChoices.success && JSON.stringify(newChoices.message) !== JSON.stringify(shapes))
+      setShapes(newChoices.message);
   }
 
   async function loadScoreboard() {
     const newGameRecords = await apiGetScoreboard(10);
-    if (!newGameRecords)
+    if (!newGameRecords.success)
         return;
 
-    setGameRecords(newGameRecords);
+    setGameRecords(newGameRecords.message);
   }
 
   async function deleteRecords(id) {
@@ -41,8 +41,13 @@ export default function RPSSL() {
 
   return (
     <div className="rpssl-main">
-      <Scoreboard shapes={shapes} gameRecords={gameRecords} onDeleteRecords={deleteRecords}/>
-      <GameScreen shapes={shapes} onGamePlayed={loadScoreboard}/>
+      <div className="rpssl-header">
+        <button className='rpssl-header-logout' onClick={onLogout}>Log out</button>
+      </div>
+      <div className="rpssl-body">
+        <Scoreboard shapes={shapes} gameRecords={gameRecords} onDeleteRecords={deleteRecords}/>
+        <GameScreen shapes={shapes} onGamePlayed={loadScoreboard}/>
+      </div>
     </div>
   );
 }

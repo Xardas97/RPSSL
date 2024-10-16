@@ -6,5 +6,5 @@ export const apiGetChoices = async () => {
 
 export const apiPostPlay = async (shape) => {
     const requestBody = { player: shape.id };
-    return await sendPostRequest("play", requestBody)
+    return await sendPostRequest("play", requestBody);
 }

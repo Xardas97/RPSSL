@@ -1,21 +1,21 @@
-export async function sendPostRequest(path, requestBody) {
+export async function sendPostRequest(path, requestBody, alertOnErrorResponse = false) {
     const body = JSON.stringify(requestBody);
     console.log("Request body: " + body)
-    return await sendRequest(path, "POST", body);
+    return await sendRequest(path, "POST", body, alertOnErrorResponse);
 }
 
-export async function sendDeleteRequest(path){
-    return await sendRequest(path, "DELETE");
+export async function sendDeleteRequest(path, alertOnErrorResponse = false){
+    return await sendRequest(path, "DELETE", null, alertOnErrorResponse);
 }
 
-export async function sendRequest(path, method = "GET", body = null) {
+export async function sendRequest(path, method = "GET", body = null, alertOnErrorResponse = false) {
     let response;
     try {
         response = await fetch(process.env.REACT_APP_API_URL + path, {
             method: method,
+            credentials: 'include',
             headers: {
-                "Content-type": "application/json",
-                'Authorization': 'Bearer ' + process.env.REACT_APP_API_TOKEN
+                "Content-type": "application/json"
             },
             body: body
         });
@@ -27,36 +27,59 @@ export async function sendRequest(path, method = "GET", body = null) {
     }
 
     if (!response.ok) {
-      await handleErrorResponse(response);
-      return null;
+        const errorResponse = await handleErrorResponse(response, alertOnErrorResponse);
+        return { success: false, message: errorResponse};
     }
 
-    if (!isJsonContent(response.headers))
-      return null;
-
-    const responseBody = await response.json();
-    console.log("Response body: " + JSON.stringify(responseBody));
-
-    return responseBody;
+    const responseBody = await getResponseBody(response);
+    return { success: true, message: responseBody};
 }
 
-async function handleErrorResponse(response) {
+async function getResponseBody(response) {
+    const contentType = getContentType(response.headers);
+    switch (contentType) {
+      case "json":
+        const jsonResponseBody = await response.json();
+        console.log("Response body: " + JSON.stringify(jsonResponseBody));
+        return jsonResponseBody;
+      case "plain":
+        const plainResponseBody =  await response.text();
+        console.log("Response body: " + plainResponseBody);
+        return plainResponseBody;
+      default:
+        return null;
+    }
+}
+
+async function handleErrorResponse(response, alertOnError) {
     let responseBody = null;
     let responseTitle = null;
 
-    const isJsonResponse = isJsonContent(response.headers);
-    if (isJsonResponse) {
+    const contentType = getContentType(response.headers);
+    if (contentType === "json") {
       responseBody = await response.json();
       responseTitle = responseBody["title"];
     }
 
-    console.log("Request failed! Response code: " + response.status +
-                ", Response body: " + (responseBody ? JSON.stringify(responseBody) : "Empty"));
-    alert("Failed to execute the action!" + (responseTitle ? "\n" + responseTitle : ""));
+    console.log("Request failed! Response code: " + response.status + ", " +
+                "Response body: " + (responseBody ? JSON.stringify(responseBody) : "Empty"));
+
+    if (alertOnError)
+        alert("Failed to execute the action!" + (responseTitle ? "\n" + responseTitle : ""));
+
+    return responseTitle;
 }
 
-function isJsonContent(headers) {
+function getContentType(headers) {
     const contentType = headers.get("content-type");
-    return contentType &&
-          (contentType.indexOf("application/json") !== -1 || contentType.indexOf("application/problem+json") !== -1);
+    if (!contentType)
+        return null;
+
+    if (contentType.indexOf("application/json") !== -1 || contentType.indexOf("application/problem+json") !== -1)
+        return "json";
+
+    if (contentType.indexOf("text/plain") !== -1)
+        return "plain";
+
+    return null;
 }

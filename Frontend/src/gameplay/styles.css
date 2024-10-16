@@ -69,8 +69,6 @@
 }
 
 .game {
-  top: 10%;
-  bottom: 5%;
   width: 80%;
 
   display: flex;

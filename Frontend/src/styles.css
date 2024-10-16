@@ -1,13 +1,71 @@
+.rpssl-login {
+  width: 100%;
+  height: 100%;
+
+  gap: 2%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+
+  .login-row {
+    width: 20%;
+    height: 5%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+
+    .login-error-message {
+      color: red;
+    }
+
+    .login-button {
+      width: 40%;
+    }
+  }
+}
+
 .rpssl-main {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rpssl-header {
+  width: 100%;
+  height: 5%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: right;
+
+  .rpssl-header-logout {
+    height: 80%;
+    width: 5%;
+    margin-right: 2%;
+  }
+}
+
+.rpssl-body {
+  width: 100%;
+  height: 95%;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.rpssl {
   top: 0%;
   left: 0%;
   right: 0%;
   bottom: 0%;
   position: absolute;
-
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
 
   background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(200,200,200,1) 100%);
 }
