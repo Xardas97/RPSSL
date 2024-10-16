@@ -14,8 +14,8 @@ namespace Mmicovic.RPSSL.Service
 
         Task<GameRecord> Play(GameRecord gameRecord, CancellationToken ct);
 
-        Task<bool> DeleteGameRecords(long? id, CancellationToken ct);
-        Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct);
+        Task<bool> DeleteGameRecords(string user, long? id, CancellationToken ct);
+        Task<IEnumerable<GameRecord>> GetGameRecords(string user, int? take, CancellationToken ct);
     }
 
     /* This class implements methods used for accesing the valid hand shapes and playing the game.
@@ -52,18 +52,17 @@ namespace Mmicovic.RPSSL.Service
 
         public async Task<GameRecord> Play(GameRecord gameRecord, CancellationToken ct)
         {
-            var playerShape = gameRecord.PlayerChoice;
-            logger.LogInformation($"New game enganged with shape: {playerShape}");
+            logger.LogInformation($"New game enganged with shape: {gameRecord.PlayerChoice}");
 
-            // Verify that the player picked a correct IDs
-            VerifyShapeIdRange(playerShape);
+            // Verify that the user was inputted and that the player picked a correct ID
+            VerifyUserAndShapeId(gameRecord.User, gameRecord.PlayerChoice);
 
             // Choose a random shape for the Computer
             var computerShape = (await GetRandomShape(ct)).Id;
             logger.LogInformation($"CPU chose shape: {computerShape}");
 
             // Calculate the result of the game
-            var result = gameResultCalculator.Calculate(playerShape!.Value, computerShape);
+            var result = gameResultCalculator.Calculate(gameRecord.PlayerChoice!.Value, computerShape);
             logger.LogInformation($"Calculated game result: {result}");
 
             // Fill new game record fields
@@ -76,27 +75,35 @@ namespace Mmicovic.RPSSL.Service
             return gameRecord;
         }
 
-        private void VerifyShapeIdRange(int? shapeId)
+        private void VerifyUserAndShapeId(string? user, int? playerShape)
         {
-            if (shapeId is null || !IsValidShapeId(shapeId.Value))
+            if (user is null)
             {
-                logger.LogWarning($"Unsupported shape ID inputted: {shapeId}");
+                logger.LogWarning($"User not inputted");
+                throw new ArgumentException("User is a mandatory field");
+            }
+
+            if (playerShape is null || !IsValidShapeId(playerShape.Value))
+            {
+                logger.LogWarning($"Unsupported shape ID inputted: {playerShape}");
                 throw new ArgumentOutOfRangeException("Chosen shape does not exist");
             }
         }
 
-        public async Task<IEnumerable<GameRecord>> GetGameRecords(int? take, CancellationToken ct)
+        public async Task<IEnumerable<GameRecord>> GetGameRecords(string user, int? take, CancellationToken ct)
         {
-            return await gameRecordRepository.GetGameRecords(take, ct);
+            return await gameRecordRepository.GetGameRecords(user, take, ct);
         }
 
-        public async Task<bool> DeleteGameRecords(long? id, CancellationToken ct)
+        public async Task<bool> DeleteGameRecords(string user, long? id, CancellationToken ct)
         {
             if (id.HasValue)
-                return await gameRecordRepository.DeleteGameRecord(id.Value, ct);
+            {
+                return await gameRecordRepository.DeleteGameRecord(user, id.Value, ct);
+            }
             else
             {
-                await gameRecordRepository.DeleteGameRecords();
+                await gameRecordRepository.DeleteGameRecords(user);
                 return true;
             }
         }

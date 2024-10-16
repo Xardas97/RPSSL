@@ -31,9 +31,9 @@ namespace Mmicovic.RPSSL.API.Models
         [JsonPropertyName("computer")]
         public int? ComputerChoice { get; init; } = computerChoice;
 
-        public Service.Models.GameRecord ToServiceObject()
+        public Service.Models.GameRecord ToServiceObject(string user)
         {
-            return new Service.Models.GameRecord(Result, PlayerChoice, ComputerChoice);
+            return new Service.Models.GameRecord(user, Result, PlayerChoice, ComputerChoice);
         }
     }
 }

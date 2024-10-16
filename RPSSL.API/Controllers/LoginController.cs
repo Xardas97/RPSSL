@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,7 @@ namespace Mmicovic.RPSSL.API.Controllers
                 throw new HttpCredentialsException("Invalid username or passphrase");
 
             logger.LogInformation($"{credentials.UserName} succesfully logged in");
-            AddJwtTokenToCookies();
+            AddJwtTokenToCookies(credentials.UserName!);
         }
 
         // POST: api/register
@@ -51,24 +52,27 @@ namespace Mmicovic.RPSSL.API.Controllers
             await userManager.CreateUser(credentials.UserName!, credentials.Password!, ct);
 
             logger.LogInformation($"{credentials.UserName} succesfully registered");
-            AddJwtTokenToCookies();
+            AddJwtTokenToCookies(credentials.UserName!);
         }
 
-        private void AddJwtTokenToCookies()
+        private void AddJwtTokenToCookies(string user)
         {
-            var token = CreateJWTToken();
+            var token = CreateJWTToken(user);
             Response.Cookies.Append(AuthorizationSetup.AUTHORIZATION_COOKIE, token);
         }
 
-        private string CreateJWTToken()
+        private string CreateJWTToken(string user)
         {
             var signinCredentials = GenerateSigningCredentials();
+            var claims = new List<Claim> { new (ClaimTypes.Name, user)};
+
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: configuration[AuthorizationSetup.ISSUER_CONFIG],
                 audience: configuration[AuthorizationSetup.AUDIENCE_CONFIG],
                 // Long expire time not advisible for production, but removes the need for token refreshing
                 expires: DateTime.Now.AddHours(8),
-                signingCredentials: signinCredentials
+                signingCredentials: signinCredentials,
+                claims: claims
             );
             return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         }

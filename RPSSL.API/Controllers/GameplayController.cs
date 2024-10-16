@@ -39,8 +39,8 @@ namespace Mmicovic.RPSSL.API.Controllers
             logger.LogDebug("Received request for a random choice");
 
             var randomShape = await gameManager.GetRandomShape(ct);
-            logger.LogDebug($"Random choice generated: {randomShape.Name}");
 
+            logger.LogDebug($"Random choice generated: {randomShape.Name}");
             return new Shape(randomShape);
         }
 
@@ -48,25 +48,27 @@ namespace Mmicovic.RPSSL.API.Controllers
         [HttpGet("play")]
         public async Task<IEnumerable<GameRecord>> GetGameRecords([FromQuery] int? take, CancellationToken ct)
         {
-            logger.LogDebug($"Received request for saved game records, take: {take}");
+            var user = User.Identity!.Name!;
+            logger.LogDebug($"Received request from {user} for saved game records, take: {take}");
 
-            var records = await gameManager.GetGameRecords(take, ct);
+            var records = await gameManager.GetGameRecords(user, take, ct);
+
             logger.LogDebug($"Returning {records.Count()} records");
-
             return records.Select(r => new GameRecord(r));
         }
 
         // POST api/play
         [HttpPost("play")]
-        public async Task<GameRecord> PostGameRecord([FromBody] GameRecord command, CancellationToken ct)
+        public async Task<GameRecord> PostGameRecord([FromBody] GameRecord newGameRecord, CancellationToken ct)
         {
-            logger.LogDebug($"Received request for a new game with player shape: {command.PlayerChoice}");
-            new PostGameRecordValidator(gameManager.IsValidShapeId).Validate(command);
+            var user = User.Identity!.Name!;
+            logger.LogDebug($"Received request for a new game for user {user} with shape: {newGameRecord.PlayerChoice}");
+            new PostGameRecordValidator(gameManager.IsValidShapeId).Validate(newGameRecord);
 
-            var record = await gameManager.Play(command.ToServiceObject(), ct);
+            var record = await gameManager.Play(newGameRecord.ToServiceObject(user), ct);
+
             logger.LogDebug($"A game has been played with shape {record.PlayerChoice} against {record.ComputerChoice}, " +
                             $"Result: {record.Result}");
-
             return new GameRecord(record);
         }
 
@@ -74,10 +76,11 @@ namespace Mmicovic.RPSSL.API.Controllers
         [HttpDelete("play/{id}")]
         public async Task DeleteGameRecord([FromRoute] string id, CancellationToken ct)
         {
-            logger.LogDebug($"Received request to delete a game records: {id}");
+            var user = User.Identity!.Name!;
+            logger.LogDebug($"Received request from {user} to delete a game records: {id}");
             new DeleteGameRecordValidator().Validate(id);
 
-            var deleted = await gameManager.DeleteGameRecords(long.Parse(id), ct);
+            var deleted = await gameManager.DeleteGameRecords(user, long.Parse(id), ct);
             if (!deleted)
                 throw new HttpNotFoundException("Game record not found");
         }
@@ -86,8 +89,10 @@ namespace Mmicovic.RPSSL.API.Controllers
         [HttpDelete("play")]
         public async Task DeleteGameRecords(CancellationToken ct)
         {
-            logger.LogDebug($"Received request to delete all game records");
-            await gameManager.DeleteGameRecords(null, ct);
+            var user = User.Identity!.Name!;
+            logger.LogDebug($"Received request from {user} to delete all game records");
+
+            await gameManager.DeleteGameRecords(user, null, ct);
         }
     }
 }

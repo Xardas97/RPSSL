@@ -13,6 +13,7 @@ namespace Mmicovic.RPSSL.Service.Tests
         private const int MAX_SHAPE_ID = 10;
         private const int PLAYER_SHAPE_ID = 4;
         private const int GENERATED_SHAPE_ID = 7;
+        private const string USER_NAME = "player_user";
         private const string GENERATED_SHAPE_NAME = "GeneratedShape";
         private static readonly Shape GENERATED_SHAPE = new(GENERATED_SHAPE_ID, GENERATED_SHAPE_NAME);
 
@@ -56,16 +57,17 @@ namespace Mmicovic.RPSSL.Service.Tests
                                 .Returns(expectedResult);
 
             // Execution
-            var gameRecord = await gameManager.Play(new GameRecord(PLAYER_SHAPE_ID), ct);
+            var command = new GameRecord(PLAYER_SHAPE_ID) { User = USER_NAME };
+            var gameRecord = await gameManager.Play(command, ct);
 
             // Verification
             shapeProvider.Verify(sp => sp.IsValidShapeId(PLAYER_SHAPE_ID), Times.Once);
             randomGenerator.Verify(rg => rg.Next(1, MAX_SHAPE_ID + 1, ct), Times.Once);
             gameResultCalculator.Verify(grc => grc.Calculate(PLAYER_SHAPE_ID, GENERATED_SHAPE_ID), Times.Once);
 
-            Assert.Equal(expectedResult, gameRecord.Result);
-            Assert.Equal(PLAYER_SHAPE_ID, gameRecord.PlayerChoice);
-            Assert.Equal(GENERATED_SHAPE_ID, gameRecord.ComputerChoice);
+            Assert.Equal(expectedResult, command.Result);
+            Assert.Equal(PLAYER_SHAPE_ID, command.PlayerChoice);
+            Assert.Equal(GENERATED_SHAPE_ID, command.ComputerChoice);
         }
 
         [Fact]
@@ -76,7 +78,8 @@ namespace Mmicovic.RPSSL.Service.Tests
             shapeProvider.Setup(sp => sp.IsValidShapeId(PLAYER_SHAPE_ID)).Returns(false);
 
             // Execution
-            var execute = async () => await gameManager.Play(new GameRecord(PLAYER_SHAPE_ID), ct);
+            var command = new GameRecord(PLAYER_SHAPE_ID) { User = USER_NAME };
+            var execute = async () => await gameManager.Play(command, ct);
 
             // Verification
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(execute);
