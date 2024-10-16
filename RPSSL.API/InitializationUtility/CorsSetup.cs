@@ -21,13 +21,15 @@ namespace Mmicovic.RPSSL.API.Initialization
                                                   .WithOrigins(TEST_UI_URL)
                                                   .WithHeaders(HeaderNames.ContentType)
                                                   .WithHeaders(HeaderNames.Authorization)
-                                                  .WithMethods(HttpMethod.Delete.ToString()));
+                                                  .WithMethods(HttpMethod.Delete.ToString())
+                                                  .AllowCredentials());
 
                 // Allow frontend in the default policy as well
                 options.AddDefaultPolicy(policy => policy.WithOrigins(frontendUrl)
                                                          .WithHeaders(HeaderNames.ContentType)
                                                          .WithHeaders(HeaderNames.Authorization)
-                                                         .WithMethods(HttpMethod.Delete.ToString()));
+                                                         .WithMethods(HttpMethod.Delete.ToString())
+                                                         .AllowCredentials());
             });
         }
     }

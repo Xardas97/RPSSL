@@ -29,7 +29,7 @@ namespace Mmicovic.RPSSL.API.Controllers
 
         // POST: api/login
         [HttpPost("login")]
-        public async Task<string> Login([FromBody] Credentials credentials, CancellationToken ct)
+        public async Task Login([FromBody] Credentials credentials, CancellationToken ct)
         {
             new CredentialsValidator().Validate(credentials);
 
@@ -38,12 +38,12 @@ namespace Mmicovic.RPSSL.API.Controllers
                 throw new HttpCredentialsException("Invalid username or passphrase");
 
             logger.LogInformation($"{credentials.UserName} succesfully logged in");
-            return CreateJWTToken();
+            AddJwtTokenToCookies();
         }
 
         // POST: api/register
         [HttpPost("register")]
-        public async Task<string> Register([FromBody] Credentials credentials, CancellationToken ct)
+        public async Task Register([FromBody] Credentials credentials, CancellationToken ct)
         {
             new CredentialsValidator().Validate(credentials);
 
@@ -51,7 +51,13 @@ namespace Mmicovic.RPSSL.API.Controllers
             await userManager.CreateUser(credentials.UserName!, credentials.Password!, ct);
 
             logger.LogInformation($"{credentials.UserName} succesfully registered");
-            return CreateJWTToken();
+            AddJwtTokenToCookies();
+        }
+
+        private void AddJwtTokenToCookies()
+        {
+            var token = CreateJWTToken();
+            Response.Cookies.Append(AuthorizationSetup.AUTHORIZATION_COOKIE, token);
         }
 
         private string CreateJWTToken()

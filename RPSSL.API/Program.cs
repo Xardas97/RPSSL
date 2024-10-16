@@ -16,6 +16,7 @@ namespace Mmicovic.RPSSL.API
             }
 
             // Add services to the container.
+            builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
@@ -23,9 +24,6 @@ namespace Mmicovic.RPSSL.API
             CorsSetup.AddCorsPolicies(builder.Services, builder.Configuration);
             AuthorizationSetup.AddJwtAuthenticationAndAuthorization(builder.Services, builder.Configuration);
             DependencyInjector.SetupDefaultDependencies(builder.Services);
-
-            // Setup Swagger
-            SwaggerSetup.AddSwaggerGeneration(builder.Services);
 
             var app = builder.Build();
 
