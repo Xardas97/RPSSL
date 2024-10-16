@@ -6,7 +6,7 @@ A web app implementation of **Rock-Paper-Scissors-Spock-Lizard** through an ASP.
 
 You first need to generate the docker image and then run it in a container. Position yourself in the root directory and run the following commands:
 ```
-docker build -t rpssl -f RPSSL.API/Dockerfile .
+docker build -t rpssl -f Service/RPSSL.API/Dockerfile .
 docker run -it --rm -p 0:8080 -p 0:8081 -e --name rpssl rpssl
 ```
 
