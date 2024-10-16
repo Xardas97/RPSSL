@@ -47,7 +47,7 @@ docker ps -a
 ```
 
 You can access the swagger API docs at: localhost:port/swagger\
-The base API url is: localhost:port/api
+The base API url is: localhost:port/api/v1
 
 ## Starting the Frontend
 
@@ -66,7 +66,7 @@ The URL of the frontend needs to be added to the CORS policy of the service. In 
 
 ## Test UI
 
-To setup the [test UI](https://codechallenge.boohma.com/) you need to input the root url of this API: <[http/https]://localhost:[port]/api>.
+To setup the [test UI](https://codechallenge.boohma.com/) you need to input the root url of this API: <[http/https]://localhost:[port]/api/v1>.
 
 You also need to disable JWT Authentication and Authorizaiton in the RPSSL.API Program.cs
 

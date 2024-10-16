@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.IdentityModel.Tokens;
 
+using Asp.Versioning;
+
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
 using Mmicovic.RPSSL.API.Validators;
@@ -14,7 +16,9 @@ using Mmicovic.RPSSL.API.Initialization;
 
 namespace Mmicovic.RPSSL.API.Controllers
 {
-    [Route("api")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiversion}")]
     [EnableCors]
     [ApiController]
     /* This controller holds endpoints for logging in and registration.

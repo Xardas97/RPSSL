@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authorization;
 
 using AutoMapper;
+using Asp.Versioning;
 
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.API.Models;
@@ -13,8 +14,9 @@ using Mmicovic.RPSSL.Service.Models;
 
 namespace Mmicovic.RPSSL.API.Controllers
 {
-    [Route("api")]
     [Authorize]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiversion}")]
     [EnableCors(CorsSetup.CORS_POLICY_TEST_UI)]
     [ApiController]
     /* This controller holds a collection of related endpoints all used for
