@@ -4,7 +4,7 @@ using Mmicovic.RPSSL.API.Models;
 
 namespace Mmicovic.RPSSL.API.Validators
 {
-    public class PostGameRecordValidator : HttpValidator<GameRecord>
+    public class PostGameRecordValidator : HttpValidator<GameRecordDTO>
     {
         public PostGameRecordValidator(Func<int, bool> isValidShapeId)
         {

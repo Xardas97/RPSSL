@@ -1,4 +1,6 @@
+using AutoMapper;
 using Mmicovic.RPSSL.API.Initialization;
+using Mmicovic.RPSSL.API.InitializationUtility;
 
 namespace Mmicovic.RPSSL.API
 {
@@ -20,10 +22,11 @@ namespace Mmicovic.RPSSL.API
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
-            // Setup CORS, JWT Auth, Dependency injection
+            // Setup CORS, JWT Auth, Dependency injection, AutoMapper
             CorsSetup.AddCorsPolicies(builder.Services, builder.Configuration);
             AuthorizationSetup.AddJwtAuthenticationAndAuthorization(builder.Services, builder.Configuration);
-            DependencyInjector.SetupDefaultDependencies(builder.Services);
+            var mapper = AutoMapperSetup.CreateMapper();
+            DependencyInjector.SetupDefaultDependencies(builder.Services, mapper);
 
             var app = builder.Build();
 

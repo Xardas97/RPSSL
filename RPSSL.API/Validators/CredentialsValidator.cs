@@ -4,7 +4,7 @@ using Mmicovic.RPSSL.API.Models;
 
 namespace Mmicovic.RPSSL.API.Validators
 {
-    public class CredentialsValidator : HttpValidator<Credentials>
+    public class CredentialsValidator : HttpValidator<CredentialsDTO>
     {
         public CredentialsValidator()
         {

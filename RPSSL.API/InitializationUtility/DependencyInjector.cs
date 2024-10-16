@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using AutoMapper;
+
 using Mmicovic.RPSSL.Service;
 using Mmicovic.RPSSL.Service.Models;
 
@@ -7,9 +9,10 @@ namespace Mmicovic.RPSSL.API.Initialization
 {
     public class DependencyInjector
     {
-        public static void SetupDefaultDependencies(IServiceCollection services)
+        public static void SetupDefaultDependencies(IServiceCollection services, IMapper mapper)
         {
             // Inject helper dependencies
+            services.AddSingleton(mapper);
             services.AddScoped<IShapeProvider, ShapeProvider>();
             services.AddScoped<IRandomGenerator, ExternalRandomGenerator>();
             services.AddScoped<IGameResultCalculator, GameResultCalculator>();

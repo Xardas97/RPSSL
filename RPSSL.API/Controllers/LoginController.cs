@@ -30,7 +30,7 @@ namespace Mmicovic.RPSSL.API.Controllers
 
         // POST: api/login
         [HttpPost("login")]
-        public async Task Login([FromBody] Credentials credentials, CancellationToken ct)
+        public async Task Login([FromBody] CredentialsDTO credentials, CancellationToken ct)
         {
             new CredentialsValidator().Validate(credentials);
 
@@ -44,7 +44,7 @@ namespace Mmicovic.RPSSL.API.Controllers
 
         // POST: api/register
         [HttpPost("register")]
-        public async Task Register([FromBody] Credentials credentials, CancellationToken ct)
+        public async Task Register([FromBody] CredentialsDTO credentials, CancellationToken ct)
         {
             new CredentialsValidator().Validate(credentials);
 

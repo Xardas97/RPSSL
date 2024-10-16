@@ -2,7 +2,7 @@
 
 namespace Mmicovic.RPSSL.API.Models
 {
-    public class Credentials
+    public class CredentialsDTO
     {
         [JsonPropertyName("name")]
         public string? UserName { get; init; }
