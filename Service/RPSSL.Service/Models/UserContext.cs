@@ -13,8 +13,11 @@ namespace Mmicovic.RPSSL.Service.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Set UserName as primary key
-            modelBuilder.Entity<User>().HasKey(x => x.UserName);
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("Users");
+                entity.HasKey(e => e.UserName);
+            });
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -22,11 +22,12 @@ namespace Mmicovic.RPSSL.API
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
-            // Setup CORS, JWT Auth, Dependency injection, AutoMapper
+            // Run custom setups for: CORS, JWT Auth, Dependency injection, AutoMapper, Database
             CorsSetup.AddCorsPolicies(builder.Services, builder.Configuration);
             AuthorizationSetup.AddJwtAuthenticationAndAuthorization(builder.Services, builder.Configuration);
             var mapper = AutoMapperSetup.CreateMapper();
             DependencyInjector.SetupDefaultDependencies(builder.Services, mapper);
+            DatabaseSetup.SetupSQLDatabase(builder.Services, builder.Configuration);
 
             var app = builder.Build();
 

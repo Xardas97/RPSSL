@@ -2,10 +2,32 @@
 
 A web app implementation of **Rock-Paper-Scissors-Spock-Lizard** through an ASP.NET REST Service with a React frontend.
 
+## Necessary installations
+
+1. .NET 8.0
+1. SQLServer
+1. Node.js
+1. Visual Studio 2022 with "ASP.NET and Web Development"
+
+## Setting up the Database
+
+Install the SQL Server, create a database, and grab it's connection string.
+
+In the appsettings.json configuration, under the 'ConnectionStrings' section, add the DB connection string to the 'Database' field.
+
+After the connection string is ready position yourself in the Service/RPSSL.API project and run:
+
+```bash
+dotnet tool install --global dotnet-ef
+dotnet ef database update --context UserContext
+dotnet ef database update --context GameRecordContext
+```
+
 ## Running with Docker
 
 You first need to generate the docker image and then run it in a container. Position yourself in the root directory and run the following commands:
-```
+
+```bash
 docker build -t rpssl -f Service/RPSSL.API/Dockerfile .
 docker run -it --rm -p 0:8080 -p 0:8081 -e --name rpssl rpssl
 ```
@@ -13,12 +35,14 @@ docker run -it --rm -p 0:8080 -p 0:8081 -e --name rpssl rpssl
 The first command will create the docker image for linux environment which can be started in a container with the second command. When you exit the program with *ctrl+c* the container will be deleted.
 
 If you wish to run it in the Development mode which also gives access to swagger, add this parameter to the *docker run* command:
-```
+
+```bash
 -e "ASPNETCORE_ENVIRONMENT=Development"
 ```
 
 Http port is 8080 by default, HTTPS is at 8081. To see which localhost ports the Docker container ports are mapped to run:
-```
+
+```bash
 docker ps -a
 ```
 
@@ -33,7 +57,7 @@ The frontend needs the URL of the API. Update the .env file or create .env.local
 
 Once the API URL has been setup simply run:
 
-```
+```bash
 npm install
 npm start
 ```

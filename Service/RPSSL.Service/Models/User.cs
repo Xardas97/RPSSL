@@ -1,4 +1,5 @@
-﻿namespace Mmicovic.RPSSL.Service.Models
+﻿
+namespace Mmicovic.RPSSL.Service.Models
 {
     public class User
     {
